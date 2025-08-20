@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Countdown Timer | JavaScript Mastery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f9a826;
+            --danger: #e63946;
+            --gray: #6c757d;
+            --card-bg: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-radius: 16px;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --gradient: linear-gradient(135deg, #4361ee, #3a0ca3);
+        }
+
+        .dark-mode {
+            --primary: #4895ef;
+            --secondary: #560bad;
+            --accent: #b5179e;
+            --light: #121212;
+            --dark: #f8f9fa;
+            --card-bg: #1e1e1e;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --gradient: linear-gradient(135deg, #560bad, #480ca8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--gradient);
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Timer Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Timer Display */
+        .timer-display {
+            text-align: center;
+            padding: 30px;
+            background: var(--gradient);
+            border-radius: var(--border-radius);
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timer-time {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .timer-progress {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: white;
+            border-radius: 5px;
+            transition: width 1s linear;
+        }
+
+        /* Preset Buttons */
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .presets {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .preset-btn {
+            padding: 15px;
+            background-color: rgba(67, 97, 238, 0.1);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            background-color: rgba(67, 97, 238, 0.2);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--text-secondary);
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Timer List */
+        .timer-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .timer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .timer-item:hover {
+            background-color: rgba(67, 97, 238, 0.2);
+        }
+
+        .timer-item.active {
+            border-left: 5px solid var(--primary);
+        }
+
+        .timer-info {
+            flex: 1;
+        }
+
+        .timer-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timer-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .timer-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Pomodoro Controls */
+        .pomodoro-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: var(--border-radius);
+        }
+
+        .pomodoro-session {
+            text-align: center;
+        }
+
+        .session-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .session-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .timer-time {
+                font-size: 3rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Advanced Countdown Timer</h1>
+                <p>Track your time efficiently with multiple timers</p>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="dashboard">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="card">
+                    <h2>Create New Timer</h2>
+                    <div class="form-group">
+                        <label for="timerName">Timer Name</label>
+                        <input type="text" class="form-control" id="timerName" placeholder="e.g., Work Session">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timerDuration">Duration</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" class="form-control" id="hours" placeholder="Hours" min="0" max="99">
+                            <input type="number" class="form-control" id="minutes" placeholder="Minutes" min="0" max="59">
+                            <input type="number" class="form-control" id="seconds" placeholder="Seconds" min="0" max="59">
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="btn btn-primary" id="createTimerBtn">
+                            <i class="fas fa-plus"></i> Create Timer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Quick Presets</h2>
+                    <div class="presets">
+                        <button class="preset-btn" data-minutes="5">5 Minutes</button>
+                        <button class="preset-btn" data-minutes="10">10 Minutes</button>
+                        <button class="preset-btn" data-minutes="15">15 Minutes</button>
+                        <button class="preset-btn" data-minutes="20">20 Minutes</button>
+                        <button class="preset-btn" data-minutes="25">25 Minutes</button>
+                        <button class="preset-btn" data-minutes="30">30 Minutes</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Pomodoro Technique</h2>
+                    <div class="pomodoro-controls">
+                        <div class="pomodoro-session">
+                            <div class="session-label">Work</div>
+                            <div class="session-value">25:00</div>
+                        </div>
+                        <div class="pomodoro-session">
+                            <div class="session-label">Break</div>
+                            <div class="session-value">5:00</div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-primary" id="startPomodoroBtn">
+                            <i class="fas fa-play"></i> Start Pomodoro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="card">
+                    <div class="timer-display">
+                        <div class="timer-title" id="currentTimerTitle">No Active Timer</div>
+                        <div class="timer-time" id="timerDisplay">00:00:00</div>
+                        <div class="timer-progress">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="controls">
+                            <button class="btn btn-success" id="startTimerBtn" disabled>
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                            <button class="btn btn-outline" id="pauseTimerBtn" disabled>
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                            <button class="btn btn-danger" id="resetTimerBtn" disabled>
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Your Timers</h2>
+                    <ul class="timer-list" id="timerList">
+                        <!-- Timer items will be added here dynamically -->
+                        <li class="timer-item fade-in">
+                            <div class="timer-info">
+                                <div class="timer-name">Work Session</div>
+                                <div class="timer-meta">25:00 - Created just now</div>
+                            </div>
+                            <div class="timer-actions">
+                                <button class="btn btn-outline">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="btn btn-outline">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="timer-item fade-in">
+                            <div class="timer-info">
+                                <div class="timer-name">Break Time</div>
+                                <div class="timer-meta">05:00 - Created just now</div>
+                            </div>
+                            <div class="timer-actions">
+                                <button class="btn btn-outline">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button class="btn btn-outline">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Timer History</h2>
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Your completed timers will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-bell"></i>
+        <span id="notificationText">Timer completed!</span>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            timers: [],
+            activeTimer: null,
+            isRunning: false,
+            timeLeft: 0,
+            totalTime: 0,
+            interval: null,
+            darkMode: localStorage.getItem('darkMode') === 'true'
+        };
+
+        // DOM Elements
+        const themeToggle = document.getElementById('themeToggle');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimerTitle = document.getElementById('currentTimerTitle');
+        const startTimerBtn = document.getElementById('startTimerBtn');
+        const pauseTimerBtn = document.getElementById('pauseTimerBtn');
+        const resetTimerBtn = document.getElementById('resetTimerBtn');
+        const createTimerBtn = document.getElementById('createTimerBtn');
+        const timerNameInput = document.getElementById('timerName');
+        const hoursInput = document.getElementById('hours');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const timerList = document.getElementById('timerList');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const startPomodoroBtn = document.getElementById('startPomodoroBtn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        // Initialize the application
+        function init() {
+            // Set theme based on state
+            if (state.darkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+
+            // Load timers from localStorage
+            const savedTimers = localStorage.getItem('timers');
+            if (savedTimers) {
+                state.timers = JSON.parse(savedTimers);
+                renderTimerList();
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Theme toggle
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // Timer control buttons
+            startTimerBtn.addEventListener('click', startTimer);
+            pauseTimerBtn.addEventListener('click', pauseTimer);
+            resetTimerBtn.addEventListener('click', resetTimer);
+
+            // Create new timer
+            createTimerBtn.addEventListener('click', createNewTimer);
+
+            // Preset buttons
+            presetButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const minutes = button.getAttribute('data-minutes');
+                    timerNameInput.value = button.textContent;
+                    hoursInput.value = 0;
+                    minutesInput.value = minutes;
+                    secondsInput.value = 0;
+                });
+            });
+
+            // Pomodoro timer
+            startPomodoroBtn.addEventListener('click', startPomodoro);
+        }
+
+        // Toggle dark/light theme
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            localStorage.setItem('darkMode', state.darkMode);
+            
+            if (state.darkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        // Create a new timer
+        function createNewTimer() {
+            const name = timerNameInput.value.trim() || 'Unnamed Timer';
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+
+            // Validate input
+            if (hours === 0 && minutes === 0 && seconds === 0) {
+                showNotification('Please set a timer duration', 'error');
+                return;
+            }
+
+            const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+            
+            const newTimer = {
+                id: Date.now(),
+                name,
+                totalSeconds,
+                createdAt: new Date().toISOString()
+            };
+
+            state.timers.push(newTimer);
+            saveTimers();
+            renderTimerList();
+
+            // Clear form
+            timerNameInput.value = '';
+            hoursInput.value = '';
+            minutesInput.value = '';
+            secondsInput.value = '';
+
+            showNotification('Timer created successfully!');
+        }
+
+        // Start the active timer
+        function startTimer() {
+            if (!state.activeTimer) return;
+
+            if (state.isRunning) {
+                pauseTimer();
+                return;
+            }
+
+            state.isRunning = true;
+            state.interval = setInterval(updateTimer, 1000);
+
+            startTimerBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            startTimerBtn.classList.remove('btn-success');
+            startTimerBtn.classList.add('btn-outline');
+            pauseTimerBtn.disabled = true;
+        }
+
+        // Pause the active timer
+        function pauseTimer() {
+            state.isRunning = false;
+            clearInterval(state.interval);
+
+            startTimerBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+            startTimerBtn.classList.remove('btn-outline');
+            startTimerBtn.classList.add('btn-success');
+            pauseTimerBtn.disabled = false;
+        }
+
+        // Reset the active timer
+        function resetTimer() {
+            state.isRunning = false;
+            clearInterval(state.interval);
+            
+            state.timeLeft = state.totalTime;
+            updateDisplay();
+            
+            startTimerBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+            startTimerBtn.classList.remove('btn-outline');
+            startTimerBtn.classList.add('btn-success');
+            pauseTimerBtn.disabled = false;
+            
+            progressFill.style.width = '0%';
+        }
+
+        // Update the timer display
+        function updateTimer() {
+            state.timeLeft--;
+            
+            if (state.timeLeft <= 0) {
+                clearInterval(state.interval);
+                state.isRunning = false;
+                state.timeLeft = 0;
+                
+                // Show notification and play sound
+                showNotification('Timer completed!', 'success');
+                playCompletionSound();
+                
+                // Update button states
+                startTimerBtn.disabled = true;
+                pauseTimerBtn.disabled = true;
+            }
+            
+            updateDisplay();
+        }
+
+        // Update the timer display
+        function updateDisplay() {
+            const hours = Math.floor(state.timeLeft / 3600);
+            const minutes = Math.floor((state.timeLeft % 3600) / 60);
+            const seconds = state.timeLeft % 60;
+            
+            timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update progress bar
+            const progress = ((state.totalTime - state.timeLeft) / state.totalTime) * 100;
+            progressFill.style.width = `${progress}%`;
+            
+            // Change color when timer is about to expire
+            if (state.timeLeft < 60) {
+                timerDisplay.classList.add('pulse');
+                timerDisplay.style.color = 'var(--danger)';
+            } else {
+                timerDisplay.classList.remove('pulse');
+                timerDisplay.style.color = 'white';
+            }
+        }
+
+        // Activate a timer
+        function activateTimer(timerId) {
+            const timer = state.timers.find(t => t.id === timerId);
+            if (!timer) return;
+            
+            state.activeTimer = timer;
+            state.timeLeft = timer.totalSeconds;
+            state.totalTime = timer.totalSeconds;
+            
+            currentTimerTitle.textContent = timer.name;
+            updateDisplay();
+            
+            // Enable control buttons
+            startTimerBtn.disabled = false;
+            pauseTimerBtn.disabled = false;
+            resetTimerBtn.disabled = false;
+            
+            // Reset progress bar
+            progressFill.style.width = '0%';
+            
+            // Highlight active timer in list
+            const timerItems = document.querySelectorAll('.timer-item');
+            timerItems.forEach(item => item.classList.remove('active'));
+            document.querySelector(`[data-id="${timerId}"]`).classList.add('active');
+        }
+
+        // Start a Pomodoro session
+        function startPomodoro() {
+            // Create a work session timer
+            const workTimer = {
+                id: Date.now(),
+                name: 'Pomodoro Work Session',
+                totalSeconds: 25 * 60, // 25 minutes
+                createdAt: new Date().toISOString()
+            };
+            
+            state.timers.push(workTimer);
+            saveTimers();
+            renderTimerList();
+            activateTimer(workTimer.id);
+            
+            showNotification('Pomodoro session started! Work for 25 minutes.');
+        }
+
+        // Render the timer list
+        function renderTimerList() {
+            timerList.innerHTML = '';
+            
+            if (state.timers.length === 0) {
+                timerList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No timers yet. Create one to get started!</p>';
+                return;
+            }
+            
+            state.timers.forEach(timer => {
+                const hours = Math.floor(timer.totalSeconds / 3600);
+                const minutes = Math.floor((timer.totalSeconds % 3600) / 60);
+                const seconds = timer.totalSeconds % 60;
+                
+                const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const listItem = document.createElement('li');
+                listItem.className = 'timer-item fade-in';
+                listItem.setAttribute('data-id', timer.id);
+                
+                if (state.activeTimer && state.activeTimer.id === timer.id) {
+                    listItem.classList.add('active');
+                }
+                
+                listItem.innerHTML = `
+                    <div class="timer-info">
+                        <div class="timer-name">${timer.name}</div>
+                        <div class="timer-meta">${timeString} - Created ${formatDate(timer.createdAt)}</div>
+                    </div>
+                    <div class="timer-actions">
+                        <button class="btn btn-outline" onclick="activateTimer(${timer.id})">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="btn btn-outline" onclick="deleteTimer(${timer.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                timerList.appendChild(listItem);
+            });
+        }
+
+        // Delete a timer
+        function deleteTimer(timerId) {
+            state.timers = state.timers.filter(t => t.id !== timerId);
+            saveTimers();
+            renderTimerList();
+            
+            if (state.activeTimer && state.activeTimer.id === timerId) {
+                resetTimer();
+                state.activeTimer = null;
+                currentTimerTitle.textContent = 'No Active Timer';
+                timerDisplay.textContent = '00:00:00';
+                
+                startTimerBtn.disabled = true;
+                pauseTimerBtn.disabled = true;
+                resetTimerBtn.disabled = true;
+            }
+            
+            showNotification('Timer deleted');
+        }
+
+        // Save timers to localStorage
+        function saveTimers() {
+            localStorage.setItem('timers', JSON.stringify(state.timers));
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+            return `${Math.floor(diffInSeconds / 86400)} days ago`;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            
+            if (type === 'error') {
+                notification.style.backgroundColor = 'var(--danger)';
+            } else {
+                notification.style.backgroundColor = 'var(--primary)';
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Play completion sound
+        function playCompletionSound() {
+            // In a real implementation, we would play an audio file
+            console.log('Playing completion sound');
+        }
+
+        // Initialize the application when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
